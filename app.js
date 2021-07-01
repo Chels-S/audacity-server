@@ -13,7 +13,7 @@ app.use('/test', (req, res)=> {
 });
 
 
-app.use('/users', controllers.usercontroller);
+app.use('/user', controllers.usercontroller);
 app.use('/raids', controllers.raidcontroller);
 app.use('/trials', controllers.trialcontroller);
 
