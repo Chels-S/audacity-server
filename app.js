@@ -8,9 +8,9 @@ const middleware = require('./middleware');
 
 app.use(middleware.headers);
 
-app.use('/test', (req, res)=> {
-    res.send('Test message')
-});
+// app.use('/test', (req, res)=> {
+//     res.send('Test message')
+// });
 
 
 app.use('/user', controllers.usercontroller);

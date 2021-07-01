@@ -15,6 +15,12 @@ const User = db.define('user', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    role: {
+        type: DataTypes.ENUM,
+        defaultValue: "user",
+        values: ["user", "admin"],
+        allowNull: true
+    }
 });
 
 module.exports = User;
