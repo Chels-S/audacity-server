@@ -3,8 +3,7 @@ const router = require("express").Router();
 const {UserModel} = require('../models');
 const bcrypt = require ('bcryptjs');
 const jwt = require('jsonwebtoken');
-const middleware = require ('../middleware/');
-const validateSession = require('../middleware/validateSession');
+const roleAuth = require('../middleware/roleAuth');
 
 
 router.post('/register', async (req, res) => {
@@ -27,7 +26,7 @@ router.post('/register', async (req, res) => {
     } catch (error) {
         if (error instanceof UniqueConstraintError){
             res.status(409).json({
-                message: "Username is already in use",
+                message: "Username or Character Name is already in use",
             });
         } else {
             res.status(500).json({
@@ -51,7 +50,7 @@ router.post('/login', async (req, res) => {
             let passwordComparison = await bcrypt.compare (password, userLogin.password);
             if (passwordComparison){
                 let token = jwt.sign (
-                    {id: userLogin.id},
+                    {id: userLogin.id, role: userLogin.role},
                     process.env.JWT_SECRET,
                     {expiresIn: 60*60*12}
                 )
@@ -81,16 +80,17 @@ router.post('/login', async (req, res) => {
 
 //! UPDATE USER BY ADMIN
 
-router.put('/edit/:id', middleware.validateSession, async (req, res) => {
+router.put('/edit/:id', roleAuth, async (req, res) => {
     const {characterName, username, password, role} = req.body;
+    const {id} = req.params
 
     try {
         const userUpdate = await UserModel.update({characterName, username, password, role},
-            {where: {role: role.admin}})
+            {where: {id: id}})
 
             res.status(200).json({
                 message: "User has been successfully updated",
-                userUpdate
+                userUpdate: userUpdate === 0 ? `no user to update` : userUpdate
             })
     }catch (error) {
         res.status(500).json({
@@ -102,15 +102,16 @@ router.put('/edit/:id', middleware.validateSession, async (req, res) => {
 
 //! DELETE USER BY ADMIN
 
-router.delete('/delete/:id', middleware.validateSession, async (req, res)=> {
+router.delete('/delete/:id', roleAuth, async (req, res)=> {
+    const {id} = req.params
     try {
         const userDeleted = await UserModel.destroy({
-            where: {role: admin}
+            where: {id: id}
         })
 
         res.status(200).json({
             message: "User has been successfully deleted.",
-            userDeleted
+            userDeleted: userDeleted === 0 ? `no user to delete` : userDeleted
         })
     } catch (error) {
         res.status(500).json({

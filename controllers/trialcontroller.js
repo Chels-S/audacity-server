@@ -1,12 +1,12 @@
 const router = require('express').Router();
 const {TrialModel} = require('../models');
-const middleware = require ('../middleware/');
 const validateSession = require('../middleware/validateSession');
+const roleAuth = require('../middleware/roleAuth');
 
 
 // ! GET ALL TRIALS
 
-router.get('/', middleware.validateSession,  async (req, res) => {
+router.get('/', validateSession,  async (req, res) => {
     try{
         const allTrials = await TrialModel.findAll();
         res.status(200).json(allTrials);
@@ -17,7 +17,7 @@ router.get('/', middleware.validateSession,  async (req, res) => {
 
 
 // ! GET ONE TRIAL BY ID 
-router.get('/:id', middleware.validateSession, async (req, res) => {
+router.get('/:id', validateSession, async (req, res) => {
     try{
         const singleTrial = await TrialModel.findOne({
             where: {id: req.params.id}
@@ -32,7 +32,7 @@ router.get('/:id', middleware.validateSession, async (req, res) => {
 
 // !CREATE TRIAL
 
-router.post('/create', middleware.validateSession, async (req, res) => {
+router.post('/create', roleAuth, async (req, res) => {
     const {expansion, nameOfFight, bossName, description, videoLink} = req.body;
 
     try{
@@ -52,7 +52,7 @@ router.post('/create', middleware.validateSession, async (req, res) => {
 
 //! EDIT TRIAL - MUST REQUIRE ADMIN ACCESS
 
-router.put('/edit/:id', middleware.validateSession, async (req, res) => {
+router.put('/edit/:id/', roleAuth, async (req, res) => {
     const {expansion, nameOfFight, bossName, description, videoLink} = req.body;
 
     try {
@@ -73,7 +73,7 @@ router.put('/edit/:id', middleware.validateSession, async (req, res) => {
 
 //! DELETE TRIAL - MUST REQUIRE ADMIN ACCESS
 
-router.delete('/delete/:id', middleware.validateSession, async (req, res) => {
+router.delete('/delete/:id', roleAuth, async (req, res) => {
     try {
         const trialDeleted = await TrialModel.destroy({
             where: {id: req.params.id}
