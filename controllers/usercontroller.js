@@ -78,6 +78,18 @@ router.post('/login', async (req, res) => {
     }
 });
 
+
+//! GET ALL USERS
+router.get('/', roleAuth, async (req, res) =>{
+    try{
+        const allUsers = await UserModel.findAll();
+        res.status(200).json(allUsers);
+    }catch(error){
+        res.status(500).json({error: error})
+    }
+})
+
+
 //! UPDATE USER BY ADMIN
 
 router.put('/edit/:id', roleAuth, async (req, res) => {
